@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Test 4 - Formulario de Perfil</title>
+    <style>
+      body {
+        font-family: "Segoe UI", sans-serif;
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 20px;
+        background: #f8f9fa;
+      }
+      .form-group {
+        margin-bottom: 16px;
+      }
+      label {
+        display: block;
+        margin-bottom: 4px;
+        font-weight: 500;
+        color: #202124;
+      }
+      input,
+      textarea,
+      select {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #dadce0;
+        border-radius: 8px;
+        font-size: 14px;
+      }
+      textarea {
+        min-height: 80px;
+        resize: vertical;
+      }
+      .row {
+        display: flex;
+        gap: 12px;
+      }
+      .row .form-group {
+        flex: 1;
+      }
+      button {
+        background: #4285f4;
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 8px;
+        font-size: 14px;
+        cursor: pointer;
+        margin-right: 8px;
+      }
+      button.secondary {
+        background: #5f6368;
+      }
+      h1 {
+        color: #202124;
+        font-size: 24px;
+        margin-bottom: 24px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Editar Perfil</h1>
+    <form id="profileForm">
+      <div class="row">
+        <div class="form-group">
+          <label for="firstName">Nombre</label>
+          <input type="text" id="firstName" name="first_name" value="" />
+        </div>
+        <div class="form-group">
+          <label for="lastName">Apellido</label>
+          <input type="text" id="lastName" name="last_name" value="" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="username">Nombre de usuario</label>
+        <input type="text" id="username" name="username" />
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" />
+      </div>
+      <div class="form-group">
+        <label for="url">Sitio web</label>
+        <input
+          type="url"
+          id="url"
+          name="url"
+          placeholder="https://tusitio.com"
+        />
+      </div>
+      <div class="form-group">
+        <label for="company">Empresa</label>
+        <input type="text" id="company" name="company" />
+      </div>
+      <div class="form-group">
+        <label for="job">Puesto / Profesión</label>
+        <input type="text" id="job" name="job" />
+      </div>
+      <div class="form-group">
+        <label for="bio">Biografía</label>
+        <textarea
+          id="bio"
+          name="bio"
+          placeholder="Cuéntanos sobre ti..."
+        ></textarea>
+      </div>
+      <div class="form-group">
+        <label>
+          <input type="checkbox" name="newsletter" /> Suscribirse al newsletter
+        </label>
+      </div>
+      <div class="form-group">
+        <label>Notificaciones por email:</label>
+        <label
+          ><input type="radio" name="email_notifications" value="all" />
+          Todas</label
+        >
+        <label
+          ><input type="radio" name="email_notifications" value="important" />
+          Solo importantes</label
+        >
+        <label
+          ><input type="radio" name="email_notifications" value="none" />
+          Ninguna</label
+        >
+      </div>
+      <button type="submit">Guardar cambios</button>
+      <button type="button" class="secondary">Cancelar</button>
+    </form>
+  </body>
+</html>

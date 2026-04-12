@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Test 5 - Formulario con Validaciones Complejas</title>
+    <style>
+      body {
+        font-family: "Segoe UI", sans-serif;
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 20px;
+        background: #f8f9fa;
+      }
+      .form-group {
+        margin-bottom: 16px;
+      }
+      label {
+        display: block;
+        margin-bottom: 4px;
+        font-weight: 500;
+        color: #202124;
+      }
+      input,
+      textarea,
+      select {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #dadce0;
+        border-radius: 8px;
+        font-size: 14px;
+      }
+      .row {
+        display: flex;
+        gap: 12px;
+      }
+      .row .form-group {
+        flex: 1;
+      }
+      button {
+        background: #4285f4;
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 8px;
+        font-size: 14px;
+        cursor: pointer;
+      }
+      h1 {
+        color: #202124;
+        font-size: 24px;
+        margin-bottom: 24px;
+      }
+      .error {
+        color: #ea4335;
+        font-size: 12px;
+        margin-top: 4px;
+      }
+      input:disabled {
+        background: #e8eaed;
+        cursor: not-allowed;
+      }
+      input[readonly] {
+        background: #f1f3f4;
+      }
+      #dynamicFields {
+        margin-top: 12px;
+      }
+      #addFieldsBtn {
+        background: #34a853;
+        margin-top: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Formulario con Validaciones Complejas</h1>
+    <form id="complexForm">
+      <div class="form-group">
+        <label for="email">Email (con pattern)</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$"
+          required
+        />
+      </div>
+      <div class="form-group">
+        <label for="phone">Teléfono (pattern: solo números)</label>
+        <input
+          type="tel"
+          id="phone"
+          name="phone"
+          pattern="[0-9]{9,15}"
+          placeholder="600000000"
+        />
+      </div>
+      <div class="form-group">
+        <label for="zip">Código Postal (5 dígitos)</label>
+        <input
+          type="text"
+          id="zip"
+          name="zip"
+          pattern="[0-9]{5}"
+          maxlength="5"
+          placeholder="28001"
+        />
+      </div>
+      <div class="form-group">
+        <label for="disabled">Campo deshabilitado (no se debe llenar)</label>
+        <input
+          type="text"
+          id="disabled"
+          name="disabled_field"
+          disabled
+          value="Solo lectura"
+        />
+      </div>
+      <div class="form-group">
+        <label for="readonly">Campo readonly (no se debe llenar)</label>
+        <input
+          type="text"
+          id="readonly"
+          name="readonly_field"
+          readonly
+          value="Valor fijo"
+        />
+      </div>
+      <div class="form-group">
+        <label for="range">Nivel de satisfacción (range)</label>
+        <input
+          type="range"
+          id="range"
+          name="satisfaction"
+          min="1"
+          max="10"
+          step="1"
+        />
+      </div>
+      <div class="form-group">
+        <label for="color">Color favorito</label>
+        <input type="color" id="color" name="favorite_color" />
+      </div>
+      <div class="form-group">
+        <label for="number">Edad (number con min/max)</label>
+        <input type="number" id="number" name="age" min="18" max="99" />
+      </div>
+
+      <h3 style="color: #202124; margin: 20px 0 8px">Campos dinámicos</h3>
+      <div id="dynamicFields"></div>
+      <button type="button" id="addFieldsBtn">+ Agregar más campos</button>
+
+      <div class="form-group" style="margin-top: 20px">
+        <label>
+          <input type="checkbox" name="privacy" /> He leído la política de
+          privacidad
+        </label>
+      </div>
+      <button type="submit">Enviar</button>
+    </form>
+
+    <script>
+      let fieldCount = 0;
+      document.getElementById("addFieldsBtn").addEventListener("click", () => {
+        fieldCount++;
+        const container = document.getElementById("dynamicFields");
+        const div = document.createElement("div");
+        div.className = "form-group";
+        div.innerHTML = `
+        <label>Referencia ${fieldCount}</label>
+        <input type="text" name="reference_${fieldCount}" placeholder="Nombre de referencia">
+      `;
+        container.appendChild(div);
+      });
+    </script>
+  </body>
+</html>

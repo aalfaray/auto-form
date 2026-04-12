@@ -1,0 +1,1423 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Auto-Form — Autocompleta formularios con datos sintéticos</title>
+    <meta
+      name="description"
+      content="Extensión de Chrome que autocompleta formularios web con datos sintéticos realistas generados por faker.js. Soporta 9 idiomas y detección inteligente de campos."
+    />
+    <link rel="icon" type="image/svg+xml" href="public/icons/icon128.svg" />
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --primary: #4285f4;
+        --primary-hover: #3367d6;
+        --primary-foreground: #ffffff;
+        --green: #34a853;
+        --red: #ea4335;
+        --yellow: #fbbc04;
+        --bg: #ffffff;
+        --bg-soft: #f8fafc;
+        --text: #1a1a2e;
+        --text-secondary: #64748b;
+        --border: #1a1a2e;
+        --shadow-color: rgba(0, 0, 0, 0.15);
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family:
+          'Inter',
+          system-ui,
+          -apple-system,
+          sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+
+      .neo-border {
+        border: 3px solid var(--border);
+        border-radius: 12px;
+      }
+
+      .neo-shadow {
+        box-shadow: 6px 6px 0px var(--border);
+      }
+
+      .neo-shadow-sm {
+        box-shadow: 4px 4px 0px var(--border);
+      }
+
+      .neo-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 14px 32px;
+        font-size: 1rem;
+        font-weight: 700;
+        border: 3px solid var(--border);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        box-shadow: 4px 4px 0px var(--border);
+      }
+
+      .neo-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 6px 6px 0px var(--border);
+      }
+
+      .neo-btn:active {
+        transform: translateY(2px) translateX(2px);
+        box-shadow: 0px 0px 0px var(--border);
+      }
+
+      .neo-btn-primary {
+        background: var(--primary);
+        color: var(--primary-foreground);
+      }
+
+      .neo-btn-primary:hover {
+        background: var(--primary-hover);
+      }
+
+      .neo-btn-outline {
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      .neo-btn-green {
+        background: var(--green);
+        color: white;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+
+      /* NAVBAR */
+      nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(12px);
+        border-bottom: 3px solid var(--border);
+      }
+
+      nav .container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 72px;
+      }
+
+      .nav-logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+        color: var(--text);
+      }
+
+      .nav-logo svg {
+        width: 36px;
+        height: 36px;
+      }
+
+      .nav-logo span {
+        font-size: 1.3rem;
+        font-weight: 800;
+      }
+
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 32px;
+        list-style: none;
+      }
+
+      .nav-links a {
+        text-decoration: none;
+        color: var(--text-secondary);
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: color 0.2s;
+      }
+
+      .nav-links a:hover {
+        color: var(--primary);
+      }
+
+      /* HERO */
+      .hero {
+        padding: 160px 0 100px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero::before {
+        content: '';
+        position: absolute;
+        top: -100px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 800px;
+        height: 800px;
+        background: radial-gradient(circle, rgba(66, 133, 244, 0.08) 0%, transparent 70%);
+        border-radius: 50%;
+      }
+
+      .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 16px;
+        background: #eff6ff;
+        border: 2px solid var(--border);
+        border-radius: 999px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--primary);
+        margin-bottom: 32px;
+        box-shadow: 3px 3px 0px var(--border);
+      }
+
+      .hero h1 {
+        font-size: clamp(2.5rem, 6vw, 4.5rem);
+        font-weight: 900;
+        line-height: 1.1;
+        margin-bottom: 24px;
+        letter-spacing: -0.02em;
+      }
+
+      .hero h1 .highlight {
+        position: relative;
+        display: inline-block;
+      }
+
+      .hero h1 .highlight::after {
+        content: '';
+        position: absolute;
+        bottom: 4px;
+        left: -4px;
+        right: -4px;
+        height: 16px;
+        background: var(--yellow);
+        z-index: -1;
+        border: 2px solid var(--border);
+        border-radius: 4px;
+        transform: rotate(-1deg);
+      }
+
+      .hero p {
+        font-size: 1.2rem;
+        color: var(--text-secondary);
+        max-width: 600px;
+        margin: 0 auto 48px;
+        line-height: 1.7;
+      }
+
+      .hero-buttons {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      .hero-mockup {
+        margin-top: 80px;
+        position: relative;
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .browser-frame {
+        background: var(--bg);
+        border: 3px solid var(--border);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 8px 8px 0px var(--border);
+      }
+
+      .browser-bar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 16px;
+        background: var(--bg-soft);
+        border-bottom: 2px solid var(--border);
+      }
+
+      .browser-dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        border: 2px solid var(--border);
+      }
+
+      .browser-dot.red {
+        background: var(--red);
+      }
+      .browser-dot.yellow {
+        background: var(--yellow);
+      }
+      .browser-dot.green {
+        background: var(--green);
+      }
+
+      .browser-url {
+        flex: 1;
+        margin-left: 12px;
+        padding: 6px 16px;
+        background: white;
+        border: 2px solid var(--border);
+        border-radius: 8px;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        font-family: 'Inter', monospace;
+      }
+
+      .browser-content {
+        display: grid;
+        grid-template-columns: 1fr 1.5fr;
+        min-height: 320px;
+      }
+
+      .popup-panel {
+        padding: 24px;
+        border-right: 2px solid var(--border);
+        background: var(--bg);
+      }
+
+      .popup-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px;
+        background: var(--primary);
+        border: 2px solid var(--border);
+        border-radius: 8px;
+        margin-bottom: 16px;
+      }
+
+      .popup-header svg {
+        width: 24px;
+        height: 24px;
+        fill: white;
+      }
+
+      .popup-header h3 {
+        color: white;
+        font-size: 0.95rem;
+        font-weight: 700;
+      }
+
+      .popup-header .badge {
+        margin-left: auto;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+      }
+
+      .popup-field {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 12px;
+        background: var(--bg-soft);
+        border: 2px solid var(--border);
+        border-radius: 8px;
+        margin-bottom: 8px;
+        font-size: 0.85rem;
+      }
+
+      .popup-field .label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+      }
+
+      .popup-field .value {
+        color: var(--text-secondary);
+        font-size: 0.8rem;
+      }
+
+      .popup-btn {
+        width: 100%;
+        padding: 10px;
+        background: var(--primary);
+        color: white;
+        border: 2px solid var(--border);
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        box-shadow: 3px 3px 0px var(--border);
+      }
+
+      .form-panel {
+        padding: 24px;
+        background: var(--bg-soft);
+      }
+
+      .form-group {
+        margin-bottom: 12px;
+      }
+
+      .form-group label {
+        display: block;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-bottom: 4px;
+        color: var(--text-secondary);
+      }
+
+      .form-group input,
+      .form-group textarea {
+        width: 100%;
+        padding: 8px 12px;
+        border: 2px solid var(--border);
+        border-radius: 8px;
+        font-size: 0.85rem;
+        background: white;
+        font-family: 'Inter', sans-serif;
+      }
+
+      .form-group textarea {
+        resize: none;
+        height: 50px;
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .filled-field {
+        border-color: var(--green) !important;
+        background: #f0fdf4 !important;
+      }
+
+      .floating-btn-demo {
+        position: absolute;
+        bottom: -20px;
+        right: 40px;
+        width: 56px;
+        height: 56px;
+        background: var(--primary);
+        border: 3px solid var(--border);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 4px 4px 0px var(--border);
+        z-index: 10;
+      }
+
+      .floating-btn-demo svg {
+        width: 28px;
+        height: 28px;
+        fill: white;
+      }
+
+      /* FEATURES */
+      .features {
+        padding: 100px 0;
+        background: var(--bg-soft);
+        border-top: 3px solid var(--border);
+        border-bottom: 3px solid var(--border);
+      }
+
+      .section-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 14px;
+        background: white;
+        border: 2px solid var(--border);
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 16px;
+        box-shadow: 3px 3px 0px var(--border);
+      }
+
+      .section-title {
+        font-size: clamp(2rem, 4vw, 3rem);
+        font-weight: 900;
+        margin-bottom: 16px;
+        letter-spacing: -0.02em;
+      }
+
+      .section-subtitle {
+        font-size: 1.1rem;
+        color: var(--text-secondary);
+        max-width: 500px;
+        margin-bottom: 60px;
+        line-height: 1.7;
+      }
+
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+      }
+
+      .feature-card {
+        padding: 32px;
+        background: white;
+        border: 3px solid var(--border);
+        border-radius: 16px;
+        transition: all 0.2s ease;
+        box-shadow: 4px 4px 0px var(--border);
+      }
+
+      .feature-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 8px 8px 0px var(--border);
+      }
+
+      .feature-icon {
+        width: 56px;
+        height: 56px;
+        border: 3px solid var(--border);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+        box-shadow: 3px 3px 0px var(--border);
+      }
+
+      .feature-icon.blue {
+        background: #eff6ff;
+      }
+      .feature-icon.green {
+        background: #ecfdf5;
+      }
+      .feature-icon.yellow {
+        background: #fef9c3;
+      }
+      .feature-icon.red {
+        background: #fef2f2;
+      }
+      .feature-icon.purple {
+        background: #f5f3ff;
+      }
+      .feature-icon.orange {
+        background: #fff7ed;
+      }
+
+      .feature-card h3 {
+        font-size: 1.15rem;
+        font-weight: 800;
+        margin-bottom: 8px;
+      }
+
+      .feature-card p {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        line-height: 1.6;
+      }
+
+      /* HOW IT WORKS */
+      .how-it-works {
+        padding: 100px 0;
+      }
+
+      .steps {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 32px;
+        margin-top: 60px;
+      }
+
+      .step {
+        text-align: center;
+        padding: 32px 24px;
+      }
+
+      .step-number {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 900;
+        background: var(--primary);
+        color: white;
+        border: 3px solid var(--border);
+        border-radius: 16px;
+        box-shadow: 4px 4px 0px var(--border);
+      }
+
+      .step h3 {
+        font-size: 1.15rem;
+        font-weight: 800;
+        margin-bottom: 8px;
+      }
+
+      .step p {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        line-height: 1.6;
+      }
+
+      /* LOCALES */
+      .locales {
+        padding: 80px 0;
+        background: var(--bg-soft);
+        border-top: 3px solid var(--border);
+        border-bottom: 3px solid var(--border);
+      }
+
+      .locale-grid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 48px;
+      }
+
+      .locale-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        background: white;
+        border: 2px solid var(--border);
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        box-shadow: 3px 3px 0px var(--border);
+        transition: all 0.2s ease;
+      }
+
+      .locale-chip:hover {
+        transform: translateY(-2px) rotate(-1deg);
+        box-shadow: 5px 5px 0px var(--border);
+      }
+
+      .locale-chip .flag {
+        font-size: 1.3rem;
+      }
+
+      /* CTA */
+      .cta {
+        padding: 100px 0;
+        text-align: center;
+      }
+
+      .cta-box {
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 60px 48px;
+        background: var(--primary);
+        border: 3px solid var(--border);
+        border-radius: 20px;
+        box-shadow: 8px 8px 0px var(--border);
+        color: white;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .cta-box::before {
+        content: '';
+        position: absolute;
+        top: -40px;
+        right: -40px;
+        width: 120px;
+        height: 120px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+      }
+
+      .cta-box::after {
+        content: '';
+        position: absolute;
+        bottom: -60px;
+        left: -30px;
+        width: 160px;
+        height: 160px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 50%;
+      }
+
+      .cta-box h2 {
+        font-size: 2.2rem;
+        font-weight: 900;
+        margin-bottom: 16px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .cta-box p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin-bottom: 36px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .cta-box .neo-btn {
+        position: relative;
+        z-index: 1;
+        background: white;
+        color: var(--primary);
+        font-size: 1.1rem;
+        padding: 16px 40px;
+      }
+
+      .cta-box .neo-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.3);
+      }
+
+      /* FOOTER */
+      footer {
+        padding: 40px 0;
+        border-top: 3px solid var(--border);
+        background: var(--bg-soft);
+      }
+
+      .footer-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+
+      .footer-logo {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 700;
+      }
+
+      .footer-logo svg {
+        width: 24px;
+        height: 24px;
+      }
+
+      .footer-text {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+      }
+
+      .footer-links {
+        display: flex;
+        gap: 24px;
+        list-style: none;
+      }
+
+      .footer-links a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: color 0.2s;
+      }
+
+      .footer-links a:hover {
+        color: var(--primary);
+      }
+
+      /* ANIMATIONS */
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-8px);
+        }
+      }
+
+      .float-animation {
+        animation: float 3s ease-in-out infinite;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .fade-in {
+        animation: fadeInUp 0.6s ease-out forwards;
+      }
+
+      .fade-in-delay-1 {
+        animation-delay: 0.1s;
+        opacity: 0;
+      }
+      .fade-in-delay-2 {
+        animation-delay: 0.2s;
+        opacity: 0;
+      }
+      .fade-in-delay-3 {
+        animation-delay: 0.3s;
+        opacity: 0;
+      }
+
+      /* RESPONSIVE */
+      @media (max-width: 768px) {
+        .browser-content {
+          grid-template-columns: 1fr;
+        }
+        .popup-panel {
+          border-right: none;
+          border-bottom: 2px solid var(--border);
+        }
+        .nav-links {
+          display: none;
+        }
+        .form-row {
+          grid-template-columns: 1fr;
+        }
+        .cta-box {
+          padding: 40px 24px;
+        }
+        .footer-content {
+          flex-direction: column;
+          text-align: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- NAVBAR -->
+    <nav>
+      <div class="container">
+        <a href="#" class="nav-logo">
+          <svg viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+            <rect width="128" height="128" rx="20" fill="#4285F4" />
+            <path
+              d="M30 36h68M30 54h52M30 72h60"
+              stroke="white"
+              stroke-width="7"
+              stroke-linecap="round"
+            />
+            <circle cx="96" cy="92" r="16" fill="#34A853" stroke="white" stroke-width="4" />
+            <path
+              d="M88 92l5 5 11-11"
+              stroke="white"
+              stroke-width="4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              fill="none"
+            />
+          </svg>
+          <span>Auto-Form</span>
+        </a>
+        <ul class="nav-links">
+          <li><a href="#features" data-i18n="nav.features">Características</a></li>
+          <li><a href="#how-it-works" data-i18n="nav.how-it-works">Cómo funciona</a></li>
+          <li><a href="#locales" data-i18n="nav.locales">Idiomas</a></li>
+          <li>
+            <a
+              href="https://github.com/aalfaray/auto-form"
+              target="_blank"
+              rel="noopener noreferrer"
+              >GitHub</a
+            >
+          </li>
+          <li>
+            <select
+              id="lang-selector"
+              class="neo-shadow-sm"
+              style="
+                padding: 4px 8px;
+                border: 2px solid var(--border);
+                border-radius: 8px;
+                font-weight: 600;
+                cursor: pointer;
+              "
+            >
+              <option value="es">🇪🇸 ES</option>
+              <option value="en">🇺🇸 EN</option>
+              <option value="pt_BR">🇧🇷 PT</option>
+              <option value="fr">🇫🇷 FR</option>
+              <option value="de">🇩🇪 DE</option>
+              <option value="it">🇮🇹 IT</option>
+              <option value="ja">🇯🇵 JP</option>
+              <option value="ko">🇰🇷 KR</option>
+              <option value="zh_CN">🇨🇳 ZH</option>
+            </select>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-badge fade-in">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+          </svg>
+          <span data-i18n="hero.badge">Extensión de Chrome v1.0</span>
+        </div>
+        <h1 class="fade-in fade-in-delay-1" data-i18n="hero.title">
+          Autocompleta formularios<br />
+          con <span class="highlight">datos sintéticos</span>
+        </h1>
+        <p class="fade-in fade-in-delay-2" data-i18n="hero.subtitle">
+          Ahorra tiempo en desarrollo y testing. Auto-Form detecta campos automáticamente y los
+          llena con datos realistas generados por faker.js en un solo clic.
+        </p>
+        <div class="hero-buttons fade-in fade-in-delay-3">
+          <a
+            href="https://github.com/aalfaray/auto-form"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="neo-btn neo-btn-primary"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
+              />
+            </svg>
+            <span data-i18n="hero.cta-install">Instalar desde GitHub</span>
+          </a>
+          <a href="#how-it-works" class="neo-btn neo-btn-outline">
+            <span data-i18n="hero.cta-how">Cómo funciona</span>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M7 17l9.2-9.2M17 17V8H8" />
+            </svg>
+          </a>
+        </div>
+
+        <div class="hero-mockup">
+          <div class="browser-frame">
+            <div class="browser-bar">
+              <div class="browser-dot red"></div>
+              <div class="browser-dot yellow"></div>
+              <div class="browser-dot green"></div>
+              <div class="browser-url">https://example.com/registro</div>
+            </div>
+            <div class="browser-content">
+              <div class="popup-panel">
+                <div class="popup-header">
+                  <svg viewBox="0 0 24 24">
+                    <path
+                      d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zM8 17h8v-2H8v2zm0-4h8v-2H8v2z"
+                    />
+                  </svg>
+                  <h3>Auto-Form</h3>
+                  <span class="badge">v1.0</span>
+                </div>
+                <div class="popup-field">
+                  <span class="label" data-i18n="mockup.fields">Campos</span>
+                  <span class="value" data-i18n="mockup.detected">6 detectados</span>
+                </div>
+                <div class="popup-field">
+                  <span class="label" data-i18n="mockup.lang-label">Idioma</span>
+                  <span class="value" data-i18n="mockup.lang-value">🇪🇸 Español</span>
+                </div>
+                <div class="popup-field">
+                  <span class="label" data-i18n="mockup.validation">Validación</span>
+                  <span class="value" style="color: var(--green)" data-i18n="mockup.active"
+                    >Activa</span
+                  >
+                </div>
+                <div style="margin-top: 16px">
+                  <div class="popup-btn" data-i18n="mockup.btn">Autocompletar</div>
+                </div>
+              </div>
+              <div class="form-panel">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label data-i18n="mockup.name">Nombre</label>
+                    <input type="text" value="María García" class="filled-field" readonly />
+                  </div>
+                  <div class="form-group">
+                    <label data-i18n="mockup.lastname">Apellido</label>
+                    <input type="text" value="Rodríguez" class="filled-field" readonly />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label data-i18n="mockup.email">Email</label>
+                  <input
+                    type="email"
+                    value="maria.rodriguez@correo.es"
+                    class="filled-field"
+                    readonly
+                  />
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label data-i18n="mockup.phone">Teléfono</label>
+                    <input type="tel" value="+34 612 345 678" class="filled-field" readonly />
+                  </div>
+                  <div class="form-group">
+                    <label data-i18n="mockup.city">Ciudad</label>
+                    <input type="text" value="Madrid" class="filled-field" readonly />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label data-i18n="mockup.address">Dirección</label>
+                  <input
+                    type="text"
+                    value="Calle de Alcalá 123, 4ºB"
+                    class="filled-field"
+                    readonly
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="floating-btn-demo float-animation">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zM8 17h8v-2H8v2zm0-4h8v-2H8v2z"
+              />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="features" id="features">
+      <div class="container">
+        <div class="section-label">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+            <path d="M2 17l10 5 10-5" />
+            <path d="M2 12l10 5 10-5" />
+          </svg>
+          <span data-i18n="features.label">Características</span>
+        </div>
+        <h2 class="section-title" data-i18n="features.title">
+          Todo lo que necesitas<br />para autocompletar formularios
+        </h2>
+        <p class="section-subtitle" data-i18n="features.subtitle">
+          Una herramienta potente diseñada para desarrolladores y testers que necesitan llenar
+          formularios rápidamente.
+        </p>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon blue">
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#4285F4"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.3-4.3" />
+              </svg>
+            </div>
+            <h3 data-i18n="features.smart.title">Detección Inteligente</h3>
+            <p data-i18n="features.smart.desc">
+              Identifica campos automáticamente usando atributos name, id, placeholder, label, type
+              y autocomplete con sistema de confianza por niveles.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon green">
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#34A853"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"
+                />
+                <path d="m9 12 2 2 4-4" />
+              </svg>
+            </div>
+            <h3 data-i18n="features.data.title">Datos Realistas</h3>
+            <p data-i18n="features.data.desc">
+              Genera datos sintéticos con faker.js: nombres, emails, direcciones, tarjetas de
+              crédito y más, todo con formato válido.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon yellow">
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#EAB308"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+                />
+                <path d="m22 6-10 7L2 6" />
+              </svg>
+            </div>
+            <h3 data-i18n="features.validation.title">Validación Estricta</h3>
+            <p data-i18n="features.validation.desc">
+              Modo de validación que re-genera datos hasta que cumplan con los patrones regex de
+              cada campo del formulario.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon red">
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#EA4335"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+              </svg>
+            </div>
+            <h3>Botón Flotante</h3>
+            <p>
+              Botón flotante accesible desde cualquier página para autocompletar con un solo clic,
+              sin abrir el popup de la extensión.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon purple">
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#7C3AED"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+              </svg>
+            </div>
+            <h3>9 Idiomas Soportados</h3>
+            <p>
+              Datos localizados en español, inglés, portugués, francés, alemán, italiano, japonés,
+              coreano y chino simplificado.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon orange">
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#F97316"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"
+                />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </div>
+            <h3>Configuración Avanzada</h3>
+            <p>
+              Página de opciones completa: activa/desactiva atributos de detección, ignora
+              selectores CSS y personaliza todo.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="how-it-works" id="how-it-works">
+      <div class="container" style="text-align: center">
+        <div class="section-label">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"
+            />
+          </svg>
+          <span data-i18n="how.label">Cómo funciona</span>
+        </div>
+        <h2 class="section-title" data-i18n="how.title">Tres pasos y listo</h2>
+        <p
+          class="section-subtitle"
+          style="margin-left: auto; margin-right: auto"
+          data-i18n="how.subtitle"
+        >
+          Configura tu idioma preferido, navega a cualquier formulario y autocompleta con un clic.
+        </p>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-number">1</div>
+            <h3 data-i18n="how.step1.title">Instala la extensión</h3>
+            <p data-i18n="how.step1.desc">
+              Carga la extensión en Chrome como unpacked extension desde la carpeta dist/ del
+              proyecto.
+            </p>
+          </div>
+          <div class="step">
+            <div class="step-number">2</div>
+            <h3 data-i18n="how.step2.title">Navega a un formulario</h3>
+            <p data-i18n="how.step2.desc">
+              Visita cualquier página web con formularios de registro, contacto o checkout.
+            </p>
+          </div>
+          <div class="step">
+            <div class="step-number">3</div>
+            <h3 data-i18n="how.step3.title">Autocompleta</h3>
+            <p data-i18n="how.step3.desc">
+              Haz clic en el botón del popup o en el botón flotante y todos los campos se llenan
+              automáticamente.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOCALES -->
+    <section class="locales" id="locales">
+      <div class="container" style="text-align: center">
+        <div class="section-label">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <path d="M2 12h20" />
+            <path
+              d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+            />
+          </svg>
+          <span data-i18n="locales.label">Idiomas</span>
+        </div>
+        <h2 class="section-title" data-i18n="locales.title">Datos localizados en 9 idiomas</h2>
+        <p
+          class="section-subtitle"
+          style="margin-left: auto; margin-right: auto"
+          data-i18n="locales.subtitle"
+        >
+          Selecciona el idioma y los datos generados serán culturalmente apropiados para esa región.
+        </p>
+
+        <div class="locale-grid">
+          <div class="locale-chip">
+            <span class="flag">🇪🇸</span> <span data-i18n="locales.es">Español</span>
+          </div>
+          <div class="locale-chip">
+            <span class="flag">🇺🇸</span> <span data-i18n="locales.en">English</span>
+          </div>
+          <div class="locale-chip">
+            <span class="flag">🇧🇷</span> <span data-i18n="locales.pt">Português (BR)</span>
+          </div>
+          <div class="locale-chip">
+            <span class="flag">🇫🇷</span> <span data-i18n="locales.fr">Français</span>
+          </div>
+          <div class="locale-chip">
+            <span class="flag">🇩🇪</span> <span data-i18n="locales.de">Deutsch</span>
+          </div>
+          <div class="locale-chip">
+            <span class="flag">🇮🇹</span> <span data-i18n="locales.it">Italiano</span>
+          </div>
+          <div class="locale-chip">
+            <span class="flag">🇯🇵</span> <span data-i18n="locales.ja">日本語</span>
+          </div>
+          <div class="locale-chip">
+            <span class="flag">🇰🇷</span> <span data-i18n="locales.ko">한국어</span>
+          </div>
+          <div class="locale-chip">
+            <span class="flag">🇨🇳</span> <span data-i18n="locales.zh">中文</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta">
+      <div class="container">
+        <div class="cta-box">
+          <h2 data-i18n="cta.title">Comienza a ahorrar tiempo</h2>
+          <p data-i18n="cta.subtitle">
+            Instala Auto-Form hoy y deja de llenar formularios manualmente durante el desarrollo y
+            testing.
+          </p>
+          <a
+            href="https://github.com/aalfaray/auto-form"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="neo-btn"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
+              />
+            </svg>
+            <span data-i18n="cta.btn">Ver en GitHub</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-logo">
+            <svg viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+              <rect width="128" height="128" rx="20" fill="#4285F4" />
+              <path
+                d="M30 36h68M30 54h52M30 72h60"
+                stroke="white"
+                stroke-width="7"
+                stroke-linecap="round"
+              />
+              <circle cx="96" cy="92" r="16" fill="#34A853" stroke="white" stroke-width="4" />
+              <path
+                d="M88 92l5 5 11-11"
+                stroke="white"
+                stroke-width="4"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                fill="none"
+              />
+            </svg>
+            Auto-Form
+          </div>
+          <p class="footer-text" data-i18n="footer.text">
+            Extensión de Chrome para autocompletar formularios con datos sintéticos.
+          </p>
+          <ul class="footer-links">
+            <li>
+              <a
+                href="https://github.com/aalfaray/auto-form"
+                target="_blank"
+                rel="noopener noreferrer"
+                >GitHub</a
+              >
+            </li>
+            <li>
+              <a
+                href="https://github.com/aalfaray/auto-form/issues"
+                target="_blank"
+                rel="noopener noreferrer"
+                data-i18n="footer.issues"
+                >Issues</a
+              >
+            </li>
+            <li>
+              <a
+                href="https://github.com/aalfaray/auto-form/blob/main/LICENSE"
+                target="_blank"
+                rel="noopener noreferrer"
+                data-i18n="footer.license"
+                >Licencia</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </footer>
+    <script src="public/assets/i18n.js"></script>
+  </body>
+</html>
