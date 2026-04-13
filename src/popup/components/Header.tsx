@@ -1,5 +1,11 @@
 import { Badge } from '@/components/retroui/Badge'
 
+/**
+ * Header bar displayed at the top of the extension popup.
+ *
+ * Shows the Auto-Form logo (SVG icon), extension name, and current version badge.
+ * Uses the primary brand color as background.
+ */
 export default function Header() {
   return (
     <div className="bg-primary px-4 py-3 flex items-center gap-2">
@@ -8,7 +14,7 @@ export default function Header() {
       </svg>
       <h1 className="text-primary-foreground text-sm font-semibold">Auto-Form</h1>
       <Badge variant="solid" size="sm" className="ml-auto">
-        v1.0.0
+        v0.1.0
       </Badge>
     </div>
   )

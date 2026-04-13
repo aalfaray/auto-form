@@ -3,6 +3,16 @@ import { getFaker, generateData } from '../shared/faker-factory'
 import { validateValue } from '../shared/validators'
 import { detectFields } from './detector'
 
+/**
+ * Sets an input/textarea value using the native property setter to ensure
+ * React and other frameworks detect the change.
+ *
+ * Dispatches `input`, `change`, and `blur` events after setting the value
+ * to trigger all event listeners and framework reconciliation.
+ *
+ * @param element - The input or textarea element to set the value on
+ * @param value - The new value to assign
+ */
 function setNativeValue(element: HTMLInputElement | HTMLTextAreaElement, value: string): void {
   const valueSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set
 
@@ -24,6 +34,15 @@ function setNativeValue(element: HTMLInputElement | HTMLTextAreaElement, value: 
   element.dispatchEvent(new Event('blur', { bubbles: true }))
 }
 
+/**
+ * Fills a `<select>` element with a random non-placeholder option.
+ *
+ * Filters out disabled, empty, and placeholder options before selecting
+ * a random one from the remaining choices.
+ *
+ * @param element - The select element to fill
+ * @returns `true` if an option was selected, `false` if no valid options exist
+ */
 function fillSelect(element: HTMLSelectElement): boolean {
   const options = Array.from(element.options).filter(
     opt => !opt.disabled && opt.value.trim() !== '' && !isPlaceholderOption(opt)
@@ -36,6 +55,15 @@ function fillSelect(element: HTMLSelectElement): boolean {
   return true
 }
 
+/**
+ * Determines if a select option is a placeholder rather than a real choice.
+ *
+ * Checks the option text against common placeholder patterns in multiple languages
+ * (e.g. "Seleccione", "Choose", "--", "...", "None").
+ *
+ * @param opt - The option element to check
+ * @returns `true` if the option appears to be a placeholder
+ */
 function isPlaceholderOption(opt: HTMLOptionElement): boolean {
   const text = opt.textContent?.trim().toLowerCase() || ''
   const placeholderTexts = [
@@ -52,12 +80,28 @@ function isPlaceholderOption(opt: HTMLOptionElement): boolean {
   return placeholderTexts.some(p => text.includes(p)) || text === ''
 }
 
+/**
+ * Fills a checkbox input with a random checked state (50/50 probability).
+ *
+ * @param element - The checkbox input element
+ * @returns Always `true` (checkbox is always successfully filled)
+ */
 function fillCheckbox(element: HTMLInputElement): boolean {
   element.checked = Math.random() > 0.5
   element.dispatchEvent(new Event('change', { bubbles: true }))
   return true
 }
 
+/**
+ * Fills a radio button by randomly selecting one option from its named group.
+ *
+ * If the radio has no `name` attribute, it is simply checked.
+ * If it has a `name`, all radios in the group are considered and one is
+ * randomly selected.
+ *
+ * @param element - The radio input element
+ * @returns Always `true`
+ */
 function fillRadio(element: HTMLInputElement): boolean {
   const name = element.name
   if (!name) {
@@ -76,6 +120,12 @@ function fillRadio(element: HTMLInputElement): boolean {
   return true
 }
 
+/**
+ * Fills a range input with a random value within its min/max/step constraints.
+ *
+ * @param element - The range input element
+ * @returns Always `true`
+ */
 function fillRange(element: HTMLInputElement): boolean {
   const min = parseFloat(element.min) || 0
   const max = parseFloat(element.max) || 100
@@ -87,6 +137,17 @@ function fillRange(element: HTMLInputElement): boolean {
   return true
 }
 
+/**
+ * Generates a numeric value for a number-type input, respecting min/max/step constraints.
+ *
+ * If the input has both `min` and `max` attributes defined, generates a value within
+ * that range following the `step` interval. Otherwise, delegates to faker data generation.
+ *
+ * @param element - The number input element
+ * @param fakerMethod - The faker method to use as fallback
+ * @param locale - The locale for faker data generation
+ * @returns The generated numeric value as a string
+ */
 function fillNumber(element: HTMLInputElement, fakerMethod: string, locale: string): string {
   const fakerInstance = getFaker(locale as never)
   const min = parseFloat(element.min)
@@ -102,6 +163,24 @@ function fillNumber(element: HTMLInputElement, fakerMethod: string, locale: stri
   return generateData(fakerInstance, fakerMethod === 'number.int' ? 'number.int' : fakerMethod)
 }
 
+/**
+ * Fills all detectable form fields in the current document with synthetic data.
+ *
+ * Processes each detected field according to its type:
+ * - **select**: Random valid option
+ * - **checkbox**: Random checked state
+ * - **radio**: Random group selection
+ * - **range**: Random value within constraints
+ * - **color**: Random hex color
+ * - **number**: Respects min/max/step or uses faker
+ * - **text/others**: Faker-generated data with optional validation
+ *
+ * Enforces `maxLength` constraints and retries up to 10 times when strict validation
+ * fails with an HTML pattern attribute.
+ *
+ * @param config - The user configuration specifying locale, validation, and detection settings
+ * @returns An {@link AutofillResult} with counts of filled/skipped fields and error details
+ */
 export function fillFields(config: UserConfig): AutofillResult {
   const fields = detectFields(config)
   const fakerInstance = getFaker(config.locale)
@@ -191,6 +270,14 @@ export function fillFields(config: UserConfig): AutofillResult {
   return result
 }
 
+/**
+ * Generates a CSS-like selector string for an element for error reporting.
+ *
+ * Tries `#id` first, then `[name="..."]`, then falls back to the tag name.
+ *
+ * @param element - The HTML element to generate a selector for
+ * @returns A descriptive selector string
+ */
 function getSelector(element: HTMLElement): string {
   if (element.id) return `#${element.id}`
   const el = element as HTMLInputElement
@@ -198,6 +285,14 @@ function getSelector(element: HTMLElement): string {
   return element.tagName.toLowerCase()
 }
 
+/**
+ * Clears all form fields in the current document, resetting them to their default state.
+ *
+ * Handles text inputs, textareas, selects, checkboxes, and radio buttons.
+ * Disabled and read-only fields are skipped.
+ *
+ * @returns The total number of fields that were cleared
+ */
 export function clearAllFields(): number {
   const inputs = document.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(
     'input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="image"]):not([type="file"]):not([type="checkbox"]):not([type="radio"]), textarea'

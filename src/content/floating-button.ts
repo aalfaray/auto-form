@@ -1,6 +1,15 @@
 const BUTTON_ID = 'autoform-floating-btn'
 const STYLE_ID = 'autoform-floating-style'
 
+/**
+ * Injects a floating action button into the current page for quick form autofill.
+ *
+ * Creates a fixed-position circular button in the bottom-right corner with the
+ * Auto-Form brand color (#4285F4). Clicking the button sends an `AUTOFILL_REQUEST`
+ * message to the background service worker. Includes hover and active animations.
+ *
+ * If the button already exists in the DOM, the function exits early without duplication.
+ */
 export function injectFloatingButton(): void {
   if (document.getElementById(BUTTON_ID)) return
 
@@ -57,6 +66,11 @@ export function injectFloatingButton(): void {
   document.body.appendChild(btn)
 }
 
+/**
+ * Removes the floating button and its associated styles from the current page.
+ *
+ * Safely handles the case where the button or styles have already been removed.
+ */
 export function removeFloatingButton(): void {
   const btn = document.getElementById(BUTTON_ID)
   const style = document.getElementById(STYLE_ID)

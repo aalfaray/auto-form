@@ -3,11 +3,22 @@ import { Input } from '@/components/retroui/Input'
 import { Button } from '@/components/retroui/Button'
 import { X } from 'lucide-react'
 
+/** Props for the {@link IgnoredSelectors} component */
 interface IgnoredSelectorsProps {
+  /** Current list of CSS selectors to ignore */
   selectors: string[]
+  /** Callback fired when the selector list is updated */
   onChange: (selectors: string[]) => void
 }
 
+/**
+ * Manager for CSS selectors that should be excluded from autofill.
+ *
+ * Allows users to add CSS selectors (e.g. `input[type="hidden"]`, `.captcha`)
+ * for form fields that should not be auto-filled. Validates each selector
+ * before adding it and supports removal via individual delete buttons.
+ * Pressing Enter in the input field triggers the add action.
+ */
 export default function IgnoredSelectors({ selectors, onChange }: IgnoredSelectorsProps) {
   const [input, setInput] = useState('')
 

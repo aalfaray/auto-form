@@ -1,11 +1,20 @@
 import { Alert } from '@/components/retroui/Alert'
 import { CheckCircle, XCircle } from 'lucide-react'
 
+/** Props for the {@link FeedbackToast} component */
 interface FeedbackToastProps {
+  /** The feedback status type determining icon and color scheme */
   type: 'success' | 'error'
+  /** The feedback message to display */
   message: string
 }
 
+/**
+ * Transient feedback notification shown after autofill or clear operations.
+ *
+ * Displays a colored alert with a success (green) or error (red) icon
+ * alongside the operation result message.
+ */
 export default function FeedbackToast({ type, message }: FeedbackToastProps) {
   return (
     <div className="mx-4 mb-3">

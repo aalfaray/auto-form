@@ -4,10 +4,13 @@
 
 Auto-Form es una extensión de Chrome (Manifest V3) diseñada para desarrolladores y testers que necesitan llenar formularios rápidamente durante el desarrollo o control de calidad. Utiliza **Faker.js** para generar datos coherentes y localizados en 9 idiomas.
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue?style=for-the-badge)
-![Manifest](https://img.shields.io/badge/Manifest-V3-green?style=for-the-badge)
-![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react)
-![Tailwind](https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=for-the-badge&logo=tailwind-css)
+[![Version](https://img.shields.io/badge/version-0.1.0-blue?style=for-the-badge)](https://github.com/aalfaray/auto-form)
+[![Manifest](https://img.shields.io/badge/Manifest-V3-green?style=for-the-badge)](https://developer.chrome.com/docs/extensions/mv3/)
+[![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react)](https://react.dev/)
+[![Tailwind](https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
+
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20me-FF5E5B?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/aalfaray)
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Donate-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/aalfaray)
 
 ---
 
@@ -38,7 +41,7 @@ Para cargar la extensión en tu navegador Chrome:
 1. **Clona el repositorio**:
 
    ```bash
-   git clone https://github.com/tu-usuario/auto-form.git
+   git clone https://github.com/aalfaray/auto-form.git
    cd auto-form
    ```
 
@@ -80,6 +83,15 @@ Para cargar la extensión en tu navegador Chrome:
 - `src/background/`: Service worker para gestión de menús contextuales y mensajes.
 - `src/shared/`: Lógica compartida, tipos, constantes y heurísticas.
 - `src/components/retroui/`: Componentes UI reutilizables con estilo neobrutalista.
+
+---
+
+## ☕ Apoya el Proyecto
+
+Si Auto-Form te ahorra tiempo en tu día a día, considera apoyar su desarrollo:
+
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20me-FF5E5B?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/aalfaray)
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Donate-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/aalfaray)
 
 ---
 

@@ -30,7 +30,7 @@ export default [
   },
  },
  {
-  files: ['public/**/*.js', 'index.html'],
+  files: ['public/**/*.js'],
   languageOptions: {
    ecmaVersion: 'latest',
    sourceType: 'script',

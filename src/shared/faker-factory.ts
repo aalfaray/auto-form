@@ -10,6 +10,7 @@ import { faker as fakerKO } from '@faker-js/faker/locale/ko'
 import { faker as fakerZH_CN } from '@faker-js/faker/locale/zh_CN'
 import type { SupportedLocale } from './types'
 
+/** Pre-initialized faker instances keyed by supported locale */
 const fakerInstances: Record<SupportedLocale, typeof faker> = {
   es: fakerES,
   en: fakerEN,
@@ -22,12 +23,39 @@ const fakerInstances: Record<SupportedLocale, typeof faker> = {
   zh_CN: fakerZH_CN,
 }
 
+/**
+ * Retrieves the faker.js instance configured for the specified locale.
+ *
+ * Falls back to English (`en`) if the locale is not found in the instances map.
+ *
+ * @param locale - The target locale identifier (e.g. `'es'`, `'en'`, `'ja'`)
+ * @returns The faker instance configured for the given locale
+ *
+ * @example
+ * const fakerES = getFaker('es')
+ * fakerES.person.firstName() // => 'María'
+ */
 export function getFaker(locale: SupportedLocale): typeof faker {
   return fakerInstances[locale] || fakerEN
 }
 
 type FakerMethod = string
 
+/**
+ * Generates synthetic data by invoking a faker.js method specified as a dot-notation string.
+ *
+ * Traverses the faker object tree using the method path and invokes the resulting function.
+ * If the method returns a `Date` object, it is converted to ISO date format (`YYYY-MM-DD`).
+ *
+ * @param fakerInstance - The faker.js instance to use for data generation
+ * @param method - Dot-notation path to the faker method (e.g. `'person.firstName'`, `'internet.email'`)
+ * @returns The generated value as a string, or an empty string if the method path is invalid
+ *
+ * @example
+ * generateData(faker, 'person.firstName') // => 'John'
+ * generateData(faker, 'internet.email')   // => 'john@example.com'
+ * generateData(faker, 'date.birthdate')   // => '1990-05-15'
+ */
 export function generateData(fakerInstance: typeof faker, method: FakerMethod): string {
   const parts = method.split('.')
   let obj: unknown = fakerInstance
